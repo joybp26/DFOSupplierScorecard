@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
 <title>DFO · Canton Fair Scorecard</title>
+
+<!-- PWA: manifest tells iOS the app name, icon, display mode -->
+<link rel="manifest" href="manifest.json">
+
+<!-- iOS-specific PWA tags (Apple uses different conventions than the standard) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DFO Scorecard">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <style>
   :root {
     --ink: #0a0a0a;
@@ -723,7 +734,7 @@
 <header>
   <div class="head-row">
     <div>
-      <div class="brand mono">DFO · Canton Fair Spring 2026 · Phase 3 · v1.1</div>
+      <div class="brand mono">DFO · Canton Fair Spring 2026 · Phase 3 · v1.2</div>
       <div class="title">Supplier Scorecard</div>
     </div>
     <div class="stats mono">
@@ -2045,6 +2056,22 @@ function renderAll() {
 load();
 updateScore();
 markClean();
+
+// ============= PWA: Service Worker Registration =============
+// Registers the service worker for offline functionality.
+// After first visit, the app loads from cache even without internet.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => {
+        // console.log('Service worker registered:', reg.scope);
+      })
+      .catch(err => {
+        // Silent fail — app still works, just won't be offline-capable
+        console.warn('Service worker registration failed:', err);
+      });
+  });
+}
 </script>
 
 </body>
