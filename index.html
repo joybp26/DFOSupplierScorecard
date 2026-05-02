@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<title>DFO · Canton Fair Scorecard</title>
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #fafaf7;
+    --rule: #1a1a1a;
+    --muted: #6b6b66;
+    --soft: #ededea;
+    --softer: #f4f4f0;
+    --accent: #c8472a;
+    --green: #2d6a3e;
+    --amber: #c47a06;
+    --red: #b8351c;
+    --grey: #5a5a55;
+    --navy: #1f3a5f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    background: var(--paper); color: var(--ink);
+    font-size: 16px; line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .mono { font-family: 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', monospace; }
+
+  header {
+    background: var(--ink); color: var(--paper);
+    padding: 12px 16px;
+    border-bottom: 3px double var(--paper);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .head-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .brand { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #999; }
+  .title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; margin-top: 2px; }
+  .stats { display: flex; gap: 12px; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: #ccc; }
+  .stats span b { color: var(--paper); font-weight: 700; }
+
+  nav.tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    background: var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tab {
+    padding: 10px 4px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #999;
+    cursor: pointer;
+    border-top: 1px solid #2a2a2a;
+    user-select: none;
+    transition: all .15s;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+  }
+  .tab.active { background: var(--paper); color: var(--ink); }
+
+  main { padding: 14px; padding-bottom: 100px; max-width: 760px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.active { display: block; animation: fade .2s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* === FORM === */
+  .field { margin-bottom: 12px; }
+  .label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .label .req { color: var(--accent); }
+  input, select, textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 16px;
+    padding: 9px 11px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 0;
+    outline: none;
+    transition: border-color .12s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+  textarea { resize: vertical; min-height: 56px; line-height: 1.4; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+  .section-head {
+    margin: 18px 0 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .section-head h2 {
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .section-head .num {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 7px 11px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    transition: all .12s;
+    font-family: inherit;
+  }
+  .chip:active { transform: scale(0.97); }
+  .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .chip.flag.on { background: var(--red); border-color: var(--red); }
+  .chip.good.on { background: var(--green); border-color: var(--green); }
+
+  /* === TARGET PRESET STRIP === */
+  .preset-strip {
+    margin: 10px 0 12px;
+    padding: 10px 12px;
+    background: var(--navy);
+    color: var(--paper);
+    border-left: 4px solid var(--accent);
+  }
+  .preset-strip .label { color: #b8c5d6; margin-bottom: 6px; }
+  .preset-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .preset-chip {
+    padding: 5px 9px;
+    border: 1px solid #5a7090;
+    background: transparent;
+    color: var(--paper);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  .preset-chip.on { background: var(--accent); border-color: var(--accent); }
+  .preset-chip.priority { border-left: 3px solid var(--accent); }
+
+  /* === CATEGORY-AWARE PROMPT === */
+  .cat-prompt {
+    margin: 8px 0 14px;
+    padding: 10px 12px;
+    background: var(--softer);
+    border-left: 3px solid var(--navy);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .cat-prompt b { color: var(--navy); font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+  .cat-prompt ul { padding-left: 18px; margin-top: 4px; }
+  .cat-prompt li { margin-bottom: 2px; }
+
+  /* === SCORE === */
+  .score-block {
+    margin: 16px 0;
+    padding: 14px;
+    background: var(--softer);
+    border-left: 4px solid var(--ink);
+  }
+  .score-row { display: flex; align-items: center; justify-content: space-between; }
+  .score-num { font-size: 40px; font-weight: 700; line-height: 1; font-family: 'Iowan Old Style', Georgia, serif; }
+  .score-label { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; font-family: 'IBM Plex Mono', monospace; }
+  .tier-pill {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+    border: 2px solid var(--ink);
+  }
+  .tier-A { background: var(--green); color: white; border-color: var(--green); }
+  .tier-B { background: var(--amber); color: white; border-color: var(--amber); }
+  .tier-C { background: var(--soft); color: var(--ink); }
+  .tier-X { background: var(--red); color: white; border-color: var(--red); }
+  .score-bar { height: 6px; background: var(--soft); margin-top: 8px; }
+  .score-fill { height: 100%; background: var(--ink); transition: width .3s; }
+
+  .btn-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    z-index: 50;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+  }
+  .btn {
+    padding: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn.primary { background: var(--ink); color: var(--paper); }
+  .btn.danger { background: var(--paper); color: var(--red); border-color: var(--red); }
+
+  /* === LIST === */
+  .list-controls {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-pill {
+    padding: 5px 9px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+  }
+  .filter-pill.on { background: var(--ink); color: var(--paper); }
+  .search-inp {
+    flex: 1;
+    min-width: 140px;
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+  .empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    border: 1px dashed var(--rule);
+  }
+  .card {
+    border: 1px solid var(--rule);
+    margin-bottom: 6px;
+    background: var(--paper);
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .card:active { background: var(--softer); }
+  .card-head {
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: start;
+    border-bottom: 1px solid var(--soft);
+  }
+  .card-main { cursor: pointer; min-width: 0; }
+  .card-main:active { opacity: 0.6; }
+  .card-name { font-weight: 700; font-size: 15px; line-height: 1.2; }
+  .card-meta { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+  .card-target {
+    display: inline-block;
+    background: var(--navy);
+    color: white;
+    padding: 1px 6px;
+    font-size: 9px;
+    margin-left: 4px;
+    letter-spacing: 0.06em;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+  }
+  .card-tier {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 3px 7px;
+    text-transform: uppercase;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .card-del {
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--red);
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-del:active { background: var(--red); color: white; }
+  .card-del svg { width: 16px; height: 16px; display: block; }
+  .card-actions { display: flex; align-items: center; gap: 0; }
+  .t-A { background: var(--green); color: white; }
+  .t-B { background: var(--amber); color: white; }
+  .t-C { background: var(--soft); color: var(--ink); }
+  .t-X { background: var(--red); color: white; }
+  .card-body {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--grey);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-score { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: var(--ink); }
+
+  /* === TARGETS PANEL === */
+  .target-list { display: flex; flex-direction: column; gap: 8px; }
+  .target-tile {
+    border: 1px solid var(--rule);
+    padding: 12px;
+    background: var(--paper);
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .target-tile:active { background: var(--softer); }
+  .target-tile.done { border-left: 4px solid var(--green); background: var(--softer); }
+  .target-tile.partial { border-left: 4px solid var(--amber); }
+  .target-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .target-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+  .target-name { font-weight: 700; font-size: 16px; margin: 2px 0; }
+  .target-obj { font-size: 13px; color: var(--grey); line-height: 1.4; }
+  .target-status { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  .target-status.has-data { color: var(--green); }
+
+  /* === DASHBOARD === */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .dash-tile {
+    border: 1px solid var(--rule);
+    padding: 12px;
+    background: var(--paper);
+  }
+  .dash-num { font-size: 32px; font-weight: 700; line-height: 1; font-family: 'Iowan Old Style', Georgia, serif; }
+  .dash-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
+  .dash-bar { display: flex; height: 26px; margin: 4px 0 16px; border: 1px solid var(--rule); }
+  .dash-bar-seg { display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; color: white; min-width: 0; }
+  .seg-A { background: var(--green); }
+  .seg-B { background: var(--amber); }
+  .seg-C { background: var(--grey); color: white; }
+  .seg-X { background: var(--red); }
+  .seg-empty { background: var(--soft); flex: 1; color: var(--muted); }
+  .dash-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 9px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: all .25s;
+    pointer-events: none;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  details.tips {
+    margin: 8px 0 12px;
+    border: 1px solid var(--rule);
+    background: var(--softer);
+  }
+  details.tips summary {
+    padding: 9px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  details.tips[open] summary { border-bottom: 1px solid var(--rule); }
+  details.tips ul { padding: 10px 12px 12px 26px; }
+  details.tips li { font-size: 13px; margin-bottom: 3px; line-height: 1.4; }
+
+  /* === CERT TIER COLLAPSIBLES === */
+  details.cert-tier {
+    margin-top: 8px;
+    border: 1px solid var(--soft);
+    background: var(--paper);
+  }
+  details.cert-tier summary {
+    padding: 8px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  details.cert-tier[open] summary {
+    border-bottom: 1px solid var(--soft);
+    color: var(--ink);
+  }
+  details.cert-tier[open] summary::after { content: ""; }
+  details.cert-tier .chips {
+    padding: 10px;
+  }
+
+  /* === PHOTO CAPTURE === */
+  .photo-section { margin-top: 8px; }
+  .photo-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .photo-add-btn {
+    aspect-ratio: 1;
+    border: 2px dashed var(--rule);
+    background: var(--paper);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: all .12s;
+    color: var(--ink);
+    text-align: center;
+    padding: 4px;
+  }
+  .photo-add-btn:active { background: var(--softer); }
+  .photo-add-btn .icn { font-size: 22px; line-height: 1; }
+  .photo-add-btn .lbl { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; line-height: 1.1; }
+  .photo-add-btn input { display: none; }
+
+  .photo-thumb {
+    aspect-ratio: 1;
+    background: var(--ink);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+  .photo-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+  }
+  .photo-thumb-tag {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 2px 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .photo-thumb-del {
+    position: absolute;
+    top: 4px; right: 4px;
+    background: var(--red);
+    color: white;
+    border: none;
+    width: 22px; height: 22px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 0;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* === LIGHTBOX === */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lightbox.show { display: flex; }
+  .lightbox img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    border: none;
+    width: 38px; height: 38px;
+    font-size: 22px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .lightbox-tag {
+    position: absolute;
+    bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--paper);
+    color: var(--ink);
+    padding: 6px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* === FOOTCARE FLAG === */
+  .footcare-flag {
+    margin: 8px 0 14px;
+    padding: 10px 14px;
+    background: #fff8e1;
+    border-left: 4px solid var(--amber);
+  }
+  .footcare-flag label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .footcare-flag input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  /* === UNIVERSAL PANEL === */
+  .universal-panel {
+    margin: 10px 0 14px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .universal-head {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .universal-head .hint { color: #b8c5d6; font-weight: 400; letter-spacing: 0.06em; text-transform: none; font-size: 10px; }
+  .universal-body { padding: 4px 0; }
+  .ug {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 10px;
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--soft);
+    align-items: start;
+  }
+  .ug:last-child { border-bottom: none; }
+  .ug-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    padding-top: 1px;
+  }
+  .ug-q {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  @media (max-width: 380px) {
+    .ug { grid-template-columns: 1fr; gap: 2px; }
+  }
+
+  /* === CUSTOM CONFIRM MODAL === */
+  .confirm-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .confirm-modal.show { display: flex; }
+  .confirm-box {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    max-width: 380px;
+    width: 100%;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .confirm-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+  .confirm-msg {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .confirm-msg b { font-weight: 700; }
+  .confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .confirm-btn {
+    padding: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .confirm-btn.danger { background: var(--red); color: white; border-color: var(--red); }
+  .confirm-btn:active { transform: scale(0.97); }
+
+  /* === STORAGE METER === */
+  .storage-meter {
+    margin-top: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    background: var(--softer);
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .storage-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--soft);
+    margin: 0 8px;
+    position: relative;
+  }
+  .storage-fill {
+    height: 100%;
+    background: var(--green);
+    transition: width .3s, background .3s;
+  }
+  .storage-fill.warn { background: var(--amber); }
+  .storage-fill.crit { background: var(--red); }
+
+  @media (max-width: 380px) {
+    .row, .row-3 { grid-template-columns: 1fr; }
+    .head-row { flex-direction: column; align-items: stretch; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-row">
+    <div>
+      <div class="brand mono">DFO · Canton Fair Spring 2026 · Phase 3 · v1.1</div>
+      <div class="title">Supplier Scorecard</div>
+    </div>
+    <div class="stats mono">
+      <span><b id="stat-total">0</b> logged</span>
+      <span><b id="stat-a">0</b> tier A</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tab active" data-tab="targets">Targets</div>
+  <div class="tab" data-tab="capture">+ New</div>
+  <div class="tab" data-tab="list">All</div>
+  <div class="tab" data-tab="dash">Export</div>
+</nav>
+
+<main>
+
+  <!-- =================== TARGETS PANEL =================== -->
+  <section class="panel active" id="panel-targets">
+    <div class="cat-prompt">
+      <b>Priority targets — tap to start booth intake</b>
+      Tap any target below to open a pre-filled scorecard. Tiles turn green when at least one supplier has been logged for that target.
+    </div>
+    <div class="target-list" id="target-list"></div>
+  </section>
+
+  <!-- =================== CAPTURE PANEL =================== -->
+  <section class="panel" id="panel-capture">
+
+    <div class="preset-strip">
+      <div class="label mono">Target this booth maps to</div>
+      <div class="preset-chips" data-chip="target" data-mode="single" id="target-chips"></div>
+    </div>
+
+    <div id="cat-prompt-box"></div>
+
+    <div class="footcare-flag" id="footcare-flag-box" style="display:none">
+      <label>
+        <input type="checkbox" id="f-footcare-flag">
+        <span>Foot care related?</span>
+      </label>
+    </div>
+
+    <div class="universal-panel">
+      <div class="universal-head">
+        <span>Universal — ask at every booth</span>
+        <span class="hint">scan top → bottom</span>
+      </div>
+      <div class="universal-body">
+        <div class="ug">
+          <div class="ug-label">Identity</div>
+          <div class="ug-q">Factory or trader? Year founded?</div>
+        </div>
+        <div class="ug">
+          <div class="ug-label">Identity</div>
+          <div class="ug-q">US export volume? Top US customer in this category?</div>
+        </div>
+        <div class="ug">
+          <div class="ug-label">Compliance</div>
+          <div class="ug-q">Registrations + certificates they market (FDA, MoCRA, OTC, EU / UK / Canada — where applicable)</div>
+        </div>
+        <div class="ug">
+          <div class="ug-label">Commercial</div>
+          <div class="ug-q">MOQ, quotation, lead time — sample on hand to take?</div>
+        </div>
+        <div class="ug">
+          <div class="ug-label">Capabilities</div>
+          <div class="ug-q">Packaging, formulation, labeling capabilities</div>
+        </div>
+        <div class="ug">
+          <div class="ug-label">Custom</div>
+          <div class="ug-q">OEM / white-label / off-the-shelf — any patents or breakthroughs? Manufacture to our spec or revise yours?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Booth & Company</h2><span class="num mono">01</span></div>
+
+    <div class="row">
+      <div class="field">
+        <div class="label mono">Booth no.</div>
+        <input type="text" id="f-booth" placeholder="e.g. 12.3 H45" autocapitalize="characters">
+      </div>
+      <div class="field">
+        <div class="label mono">Date</div>
+        <input type="text" id="f-date" placeholder="May 1">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label mono">Company name <span class="req">*</span></div>
+      <input type="text" id="f-company" placeholder="As printed at booth">
+    </div>
+
+    <div class="field">
+      <div class="label mono">Company type <span class="req">*</span></div>
+      <div class="chips" data-chip="type" data-mode="single">
+        <div class="chip">Factory</div>
+        <div class="chip">Trader</div>
+        <div class="chip">Factory + Trader</div>
+        <div class="chip">Unclear</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <div class="label mono">MOQ</div>
+        <input type="text" id="f-moq" placeholder="e.g. 500 pcs">
+      </div>
+      <div class="field">
+        <div class="label mono">Sub-MOQ flexibility</div>
+        <input type="text" id="f-submoq" placeholder="e.g. 50% on 1st PO">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label mono">Sample policy</div>
+      <input type="text" id="f-samplepolicy" placeholder="e.g. 3 free dev samples, then $30 each">
+    </div>
+
+    <div class="row-3">
+      <div class="field">
+        <div class="label mono">Lead time</div>
+        <input type="text" id="f-lead" placeholder="e.g. 35 days">
+      </div>
+      <div class="field">
+        <div class="label mono">Years exporting</div>
+        <input type="text" id="f-years" placeholder="e.g. 12">
+      </div>
+      <div class="field">
+        <div class="label mono">Price (MOQ) USD</div>
+        <input type="text" id="f-price1" placeholder="$/unit">
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Capability Signal</h2><span class="num mono">02</span></div>
+    <div class="field">
+      <div class="label mono">Tap all that apply</div>
+      <div class="chips" data-chip="caps" data-mode="multi">
+        <div class="chip good">License shown</div>
+        <div class="chip good">Factory addr given</div>
+        <div class="chip good">OEM / private label</div>
+        <div class="chip good">Catalog / line sheet</div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Compliance</h2><span class="num mono">03</span></div>
+    <div class="field">
+      <div class="label mono">Critical — US market gate</div>
+      <div class="chips" data-chip="certs" data-mode="multi">
+        <div class="chip good">FDA registration</div>
+        <div class="chip good">MoCRA reg.</div>
+        <div class="chip good">cGMP (21 CFR 700)</div>
+        <div class="chip good">CE / MDR</div>
+      </div>
+
+      <details class="cert-tier">
+        <summary>Quality systems — verify post-fair if missing</summary>
+        <div class="chips" data-chip="certs" data-mode="multi">
+          <div class="chip good">ISO 22716</div>
+          <div class="chip good">ISO 13485</div>
+          <div class="chip good">ISO 9001</div>
+          <div class="chip good">510(k)</div>
+        </div>
+      </details>
+
+      <details class="cert-tier">
+        <summary>Product / market specific — only when relevant</summary>
+        <div class="chips" data-chip="certs" data-mode="multi">
+          <div class="chip good">OEKO-TEX 100</div>
+          <div class="chip good">REACH</div>
+          <div class="chip good">Prop 65</div>
+          <div class="chip good">ISO 10993</div>
+        </div>
+      </details>
+    </div>
+
+    <div class="field">
+      <div class="label mono">Cert verification status</div>
+      <div class="chips" data-chip="certv" data-mode="single">
+        <div class="chip">Documents given</div>
+        <div class="chip">Numbers given</div>
+        <div class="chip">Promised by email</div>
+        <div class="chip">Conditional on PO</div>
+        <div class="chip">Refused</div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Red Flags</h2><span class="num mono">04</span></div>
+    <div class="field">
+      <div class="chips" data-chip="flags" data-mode="multi">
+        <div class="chip flag">Solicited deposit at booth</div>
+        <div class="chip flag">Spec / sample mismatch</div>
+        <div class="chip flag">Pricing inconsistencies</div>
+        <div class="chip flag">No clear production capacity</div>
+        <div class="chip flag">No clear quality control process</div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Documents Collected</h2><span class="num mono">05</span></div>
+    <div class="field">
+      <div class="chips" data-chip="docs" data-mode="multi">
+        <div class="chip">Business card</div>
+        <div class="chip">Catalog / line sheet</div>
+        <div class="chip">Sample (in hand or pending)</div>
+        <div class="chip">License (shown or photographed)</div>
+        <div class="chip">Cert / spec / test data given</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label mono">Photos — booth, card, license, certs, samples, anything</div>
+      <div class="photo-section">
+        <div class="photo-row" id="photo-grid">
+          <label class="photo-add-btn">
+            <span class="icn">+</span>
+            <span class="lbl">Add photo</span>
+            <input type="file" accept="image/*" capture="environment" data-tag="">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Contact & Notes</h2><span class="num mono">06</span></div>
+    <div class="row">
+      <div class="field">
+        <div class="label mono">Rep name</div>
+        <input type="text" id="f-rep">
+      </div>
+      <div class="field">
+        <div class="label mono">WeChat ID</div>
+        <input type="text" id="f-wechat">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <div class="label mono">Email</div>
+        <input type="email" id="f-email">
+      </div>
+      <div class="field">
+        <div class="label mono">Phone / WhatsApp</div>
+        <input type="tel" id="f-phone">
+      </div>
+    </div>
+    <div class="field">
+      <div class="label mono">Sample(s) requested or received</div>
+      <input type="text" id="f-samples" placeholder="e.g. 40% urea, 5oz tube · ship May 15">
+    </div>
+    <div class="field">
+      <div class="label mono">Notes — gut read</div>
+      <textarea id="f-notes" placeholder="One sentence headline."></textarea>
+    </div>
+
+    <div class="field">
+      <div class="label mono">Follow-up action</div>
+      <div class="chips" data-chip="follow" data-mode="single">
+        <div class="chip good">Sample requested</div>
+        <div class="chip">Email quote</div>
+        <div class="chip">2nd meeting</div>
+        <div class="chip">Send NDA / specs</div>
+        <div class="chip">No follow-up</div>
+      </div>
+    </div>
+
+    <!-- LIVE SCORE -->
+    <div class="score-block" id="score-box">
+      <div class="score-row">
+        <div>
+          <div class="score-label">Auto score</div>
+          <div class="score-num mono"><span id="score-val">0</span><span style="font-size:16px; color:var(--muted)">/100</span></div>
+        </div>
+        <div style="text-align:right">
+          <div class="score-label">Suggested tier</div>
+          <div class="tier-pill mono" id="tier-pill">—</div>
+        </div>
+      </div>
+      <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="field">
+      <div class="label mono">Override tier (optional)</div>
+      <div class="chips" data-chip="manualtier" data-mode="single">
+        <div class="chip">Use auto</div>
+        <div class="chip">Tier A</div>
+        <div class="chip">Tier B</div>
+        <div class="chip">Tier C</div>
+        <div class="chip flag">Reject</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== LIST PANEL =================== -->
+  <section class="panel" id="panel-list">
+    <div class="list-controls">
+      <input type="text" class="search-inp" id="search" placeholder="Search company, booth, target…">
+    </div>
+    <div class="list-controls">
+      <div class="filter-pill mono on" data-filter="all">All</div>
+      <div class="filter-pill mono" data-filter="A">Tier A</div>
+      <div class="filter-pill mono" data-filter="B">Tier B</div>
+      <div class="filter-pill mono" data-filter="C">Tier C</div>
+      <div class="filter-pill mono" data-filter="X">Reject</div>
+    </div>
+    <div id="cards"></div>
+  </section>
+
+  <!-- =================== DASHBOARD =================== -->
+  <section class="panel" id="panel-dash">
+    <div class="dash-grid">
+      <div class="dash-tile">
+        <div class="dash-num mono" id="d-total">0</div>
+        <div class="dash-label">Total logged</div>
+      </div>
+      <div class="dash-tile">
+        <div class="dash-num mono" id="d-today">0</div>
+        <div class="dash-label">Logged today</div>
+      </div>
+      <div class="dash-tile">
+        <div class="dash-num mono" id="d-followup">0</div>
+        <div class="dash-label">Awaiting follow-up</div>
+      </div>
+      <div class="dash-tile">
+        <div class="dash-num mono" id="d-flagged">0</div>
+        <div class="dash-label">Red-flagged</div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>Tier Distribution</h2><span class="num mono">—</span></div>
+    <div class="dash-bar" id="dash-bar">
+      <div class="dash-bar-seg seg-empty">No data</div>
+    </div>
+
+    <div class="section-head"><h2>Coverage by Target</h2><span class="num mono">—</span></div>
+    <div id="coverage-list" style="font-size:13px;"></div>
+
+    <div class="section-head"><h2>Export & Backup</h2><span class="num mono">—</span></div>
+
+    <div class="storage-meter">
+      <span id="storage-label">Storage: 0 KB</span>
+      <div class="storage-bar"><div class="storage-fill" id="storage-fill" style="width:0%"></div></div>
+      <span id="storage-pct">0%</span>
+    </div>
+
+    <div class="dash-actions" style="margin-top:10px; grid-template-columns: 1fr;">
+      <button class="btn primary" onclick="exportJSON()" style="padding:18px; font-size:13px;">End of Day Export</button>
+    </div>
+    <div style="margin-top:6px;">
+      <button class="btn" onclick="exportCSV()" style="width:100%; font-size:10px; padding:10px;">Also download CSV (backup)</button>
+    </div>
+
+    <div class="section-head"><h2>Cleanup</h2><span class="num mono">—</span></div>
+    <div>
+      <button class="btn" onclick="findDuplicates()" style="width:100%;">Find & remove duplicates</button>
+      <div style="font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; font-family: 'IBM Plex Mono', monospace;">
+        Scans for entries with the same company name + booth. Shows you each group, keeps the most recently updated.
+      </div>
+    </div>
+
+    <div style="margin-top: 14px;" class="dash-actions">
+      <label class="btn" style="text-align:center; cursor:pointer;">
+        Import JSON
+        <input type="file" id="import-json" accept="application/json" style="display:none;">
+      </label>
+      <button class="btn danger" onclick="confirmClear()">Clear all data</button>
+    </div>
+
+    <div style="margin-top: 18px; padding: 12px; border: 1px solid var(--rule); background: var(--softer); font-size: 12px; line-height: 1.5;">
+      <div class="label mono" style="margin-bottom: 6px;">Daily wrap</div>
+      <ol style="padding-left: 16px;">
+        <li>Tap "End of Day Export" → save JSON file</li>
+        <li>Send JSON to Joy (Slack / WeChat / email)</li>
+      </ol>
+    </div>
+  </section>
+
+</main>
+
+<!-- BUTTON BAR (only on capture) -->
+<div class="btn-bar" id="btn-bar" style="display:none">
+  <button class="btn" id="btn-clear">Clear form</button>
+  <button class="btn primary" id="btn-save">Save supplier</button>
+  <button class="btn danger" id="btn-delete" style="display:none; grid-column: 1 / -1; margin-top: 4px;">Delete this supplier</button>
+</div>
+
+<!-- Lightbox for photo viewing -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <img id="lightbox-img" alt="">
+  <div class="lightbox-tag mono" id="lightbox-tag"></div>
+</div>
+
+<!-- Custom confirm modal (works in iframes where browser confirm() is blocked) -->
+<div class="confirm-modal" id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-title mono" id="confirm-title">Confirm</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-actions">
+      <button class="confirm-btn" id="confirm-cancel">Cancel</button>
+      <button class="confirm-btn danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast mono" id="toast">SAVED</div>
+
+<script>
+'use strict';
+
+// ============= TARGETS (DFO PRIORITY LIST) =============
+const TARGETS = [
+  { key: 'topicals', label: 'Topicals (FC01 / HealSoft / FM01)', priority: true, type: 'topical', objective: 'Urea cream OEMs (40%+), HealSoft 7-botanical producers, foot sheet mask OEMs. YouFu also logged here.', prompt: { title: 'Topical OEM — category-specific', items: ['What urea % have you actually manufactured? (range, not max claim)', 'Cosmetics only, or also OTC-level topicals?', 'Foot sheet mask format capability — yes/no?', 'Shelf-life testing data available?'] } },
+  { key: 'bbs01', label: 'BBS01 (Blister / chafing balm)', priority: true, type: 'topical', objective: 'Topical blister and anti-chafing balm OEMs', prompt: { title: 'BBS01 — category-specific', items: ['Do you make blister or anti-chafing balms? Closest reference product?', 'Cosmetics only, or also OTC-level topicals?', 'Shelf-life testing data available?'] } },
+  { key: 'socks', label: 'Moisturizing socks', priority: true, type: 'sock', objective: 'Gel + non-gel · compare to SEBS-gel current · oil bleed · wash durability · alternatives', prompt: { title: 'Moisturizing socks — category-specific', items: ['What kind do you make?', 'What is the gel composition?', 'Any gel formula that\'s been tried and tested in the market?'] } },
+  { key: 'tpe-gel', label: 'TPE gel cushion (GTC04)', priority: true, type: 'tpe', objective: 'Second-source for GTC04DA / GTC04LI · bring physical samples', prompt: { title: 'TPE cushion — category-specific', items: ['Hand them GTC04DA + GTC04LI samples — "can you make this?"', 'Phthalate-free? (yes/no — non-negotiable for US)', 'Do you make TPE with additives or infused with additives?'] } },
+  { key: 'hydrocolloid', label: 'Hydrocolloid', type: 'hydrocolloid', objective: 'Sample-gathering pass · all formats and grades', prompt: { title: 'Hydrocolloid — category-specific', items: ['Medical grade, cosmetic grade, or both?', 'What additives do you offer? (medicated, herbal, fragrance, color)', 'Do you produce sterile bandages? (sterilization method?)', 'Take samples in every format and grade they have', 'Smallest custom shape you\'ve die-cut to date?'] } },
+  { key: 'brace', label: 'Brace factories', type: 'brace', objective: 'Catalog / sample sweep · TPE-gel-insert capability', prompt: { title: 'Brace factory — category-specific', items: ['What types do you make?', 'Insert capability? (TPE gel, foam, consumables, replaceables — anything that goes inside)'] } },
+  { key: 'tsr01', label: 'TSR01 (Tonsil stone kit)', type: 'kit', objective: 'Kit components — LED tool, mirror, tweezers/loops, case', prompt: { title: 'TSR01 — category-specific', items: ['Do you make any of: LED tool, mirror, tweezers/loops, dental case?', 'Can you kit-and-pack, or parts only?'] } },
+  { key: 'other', label: 'General / Other finds', type: 'other', objective: 'Catch-all bucket — anything not matching the targets above. Tick the foot-care flag if relevant.', prompt: null }
+];
+
+// ============= STATE =============
+const STORAGE_KEY = 'dfo_cantonfair2026_v1';
+let suppliers = [];
+let editingId = null;
+let chipState = {};
+let listFilter = 'all';
+let currentPhotos = []; // [{id, tag, dataUrl}] — photos for the form being edited
+let formDirty = false;  // true when user has changed anything since last save/load
+let saving = false;     // true during the save operation
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) suppliers = JSON.parse(raw);
+  } catch(e) { suppliers = []; }
+  renderAll();
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(suppliers)); }
+  catch(e) {
+    alert('Storage limit reached. Please export JSON immediately to back up your data, then delete some photos or older suppliers to free space.');
+    throw e;
+  }
+}
+
+// ============= SAVE BUTTON STATE =============
+function markDirty() {
+  formDirty = true;
+  updateSaveButton();
+}
+function markClean() {
+  formDirty = false;
+  updateSaveButton();
+}
+function updateSaveButton() {
+  const btn = document.getElementById('btn-save');
+  if (!btn) return;
+  if (saving) {
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    btn.style.opacity = '0.6';
+    btn.style.background = '';
+    return;
+  }
+  if (formDirty) {
+    btn.disabled = false;
+    btn.textContent = editingId ? 'Update supplier' : 'Save supplier';
+    btn.style.opacity = '';
+    btn.style.background = '';
+  } else {
+    // No unsaved changes
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.style.background = '';
+    // Don't change text here — flashSaveSuccess handles the post-save text
+  }
+}
+function flashSaveSuccess() {
+  const btn = document.getElementById('btn-save');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = '✓ SAVED';
+  btn.style.background = 'var(--green)';
+  btn.style.color = 'white';
+  btn.style.opacity = '';
+  setTimeout(() => {
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.textContent = 'Save supplier';
+    btn.style.opacity = '0.5';
+  }, 1500);
+}
+
+// ============= PHOTO HANDLING =============
+const MAX_DIM = 1280;       // resize longest edge
+const JPEG_QUALITY = 0.72;  // ~150-300 KB per photo
+
+async function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round(height * (MAX_DIM / width));
+            width = MAX_DIM;
+          } else {
+            width = Math.round(width * (MAX_DIM / height));
+            height = MAX_DIM;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
+      };
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handlePhotoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  // If the input has a preset tag, use it; otherwise prompt the user
+  let tag = input.dataset.tag || '';
+  try {
+    showToast('PROCESSING…');
+    const dataUrl = await compressImage(file);
+    // Prompt for tag if not preset
+    if (!tag) {
+      tag = prompt('Tag this photo (e.g. "business card", "factory floor"):', '') || 'Photo';
+      tag = tag.trim() || 'Photo';
+    }
+    currentPhotos.push({
+      id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,5),
+      tag: tag,
+      dataUrl: dataUrl
+    });
+    renderPhotos();
+    markDirty();
+    showToast('PHOTO ADDED');
+  } catch (err) {
+    alert('Photo processing failed: ' + err.message);
+  } finally {
+    input.value = '';
+  }
+}
+
+// Wire up all photo inputs
+document.querySelectorAll('.photo-add-btn input').forEach(input => {
+  input.addEventListener('change', () => handlePhotoUpload(input));
+});
+
+function renderPhotos() {
+  const grid = document.getElementById('photo-grid');
+  // Remove all existing thumbs (keep the add button)
+  grid.querySelectorAll('.photo-thumb').forEach(el => el.remove());
+  const addBtn = grid.querySelector('.photo-add-btn');
+  // Insert thumbs before the add button (button stays at end)
+  currentPhotos.forEach(p => {
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = `
+      <img src="${p.dataUrl}" alt="${escape(p.tag)}" data-id="${p.id}">
+      <button class="photo-thumb-del" data-id="${p.id}" title="Remove">×</button>
+      <div class="photo-thumb-tag mono">${escape(p.tag)}</div>
+    `;
+    thumb.querySelector('img').addEventListener('click', (e) => openLightbox(p.dataUrl, p.tag));
+    thumb.querySelector('.photo-thumb-del').addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentPhotos = currentPhotos.filter(x => x.id !== p.id);
+      renderPhotos();
+      markDirty();
+    });
+    grid.insertBefore(thumb, addBtn);
+  });
+}
+
+function openLightbox(src, tag) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-tag').textContent = tag || '';
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+}
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
+
+// ============= TARGET CHIPS in capture form =============
+const targetChipsEl = document.getElementById('target-chips');
+TARGETS.forEach(t => {
+  const c = document.createElement('div');
+  c.className = 'preset-chip mono' + (t.priority ? ' priority' : '');
+  c.textContent = t.label;
+  c.dataset.key = t.key;
+  c.addEventListener('click', () => {
+    targetChipsEl.querySelectorAll('.preset-chip').forEach(x => x.classList.remove('on'));
+    c.classList.add('on');
+    chipState.target = t.key;
+    renderCatPrompt(t.key);
+    markDirty();
+    updateScore();
+  });
+  targetChipsEl.appendChild(c);
+});
+
+function renderCatPrompt(key) {
+  const t = TARGETS.find(x => x.key === key);
+  const box = document.getElementById('cat-prompt-box');
+  if (!t || !t.prompt) { box.innerHTML = ''; }
+  else {
+    box.innerHTML = `
+      <div class="cat-prompt">
+        <b>${escape(t.prompt.title)}</b>
+        <ul>${t.prompt.items.map(i => `<li>${escape(i)}</li>`).join('')}</ul>
+      </div>
+    `;
+  }
+  // Show foot-care flag only for the 'other' bucket
+  const flagBox = document.getElementById('footcare-flag-box');
+  flagBox.style.display = (key === 'other') ? 'block' : 'none';
+}
+
+// ============= TARGETS PANEL =============
+function renderTargets() {
+  const list = document.getElementById('target-list');
+  list.innerHTML = TARGETS.map(t => {
+    const count = suppliers.filter(s => s.target === t.key).length;
+    const aCount = suppliers.filter(s => s.target === t.key && s.tier === 'A').length;
+    const cls = count > 0 ? (aCount > 0 ? 'done' : 'partial') : '';
+    const status = count === 0 ? 'No suppliers logged' : `${count} logged${aCount ? ` · ${aCount} Tier A` : ''}`;
+    return `
+      <div class="target-tile ${cls}" data-key="${t.key}">
+        <div class="target-head">
+          <div class="target-num mono">${t.priority ? '★ PRIORITY' : t.type.toUpperCase()}</div>
+        </div>
+        <div class="target-name">${escape(t.label)}</div>
+        <div class="target-obj">${escape(t.objective)}</div>
+        <div class="target-status ${count > 0 ? 'has-data' : ''} mono">${status}</div>
+      </div>
+    `;
+  }).join('');
+  list.querySelectorAll('.target-tile').forEach(tile => {
+    tile.addEventListener('click', () => startNewWithTarget(tile.dataset.key));
+  });
+}
+
+function startNewWithTarget(key) {
+  clearForm();
+  chipState.target = key;
+  document.querySelectorAll('#target-chips .preset-chip').forEach(c => {
+    c.classList.toggle('on', c.dataset.key === key);
+  });
+  renderCatPrompt(key);
+  switchTab('capture');
+}
+
+// ============= CHIPS =============
+document.querySelectorAll('[data-chip]').forEach(group => {
+  const key = group.dataset.chip;
+  const mode = group.dataset.mode;
+  if (key === 'target') return; // handled above
+  // Only initialize state if it doesn't exist yet (multiple groups can share a key, e.g. tiered certs)
+  if (chipState[key] === undefined) {
+    if (mode === 'multi') chipState[key] = new Set();
+    else chipState[key] = null;
+  }
+
+  group.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const v = chip.textContent.trim();
+      if (mode === 'single') {
+        if (chipState[key] === v) {
+          chipState[key] = null;
+          chip.classList.remove('on');
+        } else {
+          chipState[key] = v;
+          // Clear all groups sharing this key, not just this one
+          document.querySelectorAll(`[data-chip="${key}"] .chip`).forEach(c => c.classList.remove('on'));
+          chip.classList.add('on');
+        }
+      } else {
+        if (chipState[key].has(v)) { chipState[key].delete(v); chip.classList.remove('on'); }
+        else { chipState[key].add(v); chip.classList.add('on'); }
+      }
+      markDirty();
+      updateScore();
+    });
+  });
+});
+chipState.target = null;
+
+// ============= TABS =============
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  document.getElementById('btn-bar').style.display = (name === 'capture') ? 'grid' : 'none';
+  if (name === 'list') renderList();
+  if (name === 'dash') renderDash();
+  if (name === 'targets') renderTargets();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// ============= SCORING =============
+// Hard red flags trigger auto-reject when 2+ ticked, also higher penalty
+const HARD_FLAGS = new Set(['Solicited deposit at booth', 'Spec / sample mismatch', 'Pricing inconsistencies']);
+const SOFT_FLAGS = new Set(['No clear production capacity', 'No clear quality control process']);
+
+function calcScore() {
+  let s = 0;
+
+  // Company type
+  const t = chipState.type;
+  if (t === 'Factory') s += 12;
+  else if (t === 'Factory + Trader') s += 10;
+  else if (t === 'Trader') s += 5;
+
+  // Capability chips (4 total) — +5 each, max +20
+  s += chipState.caps.size * 5;
+
+  // Cert verification — asymmetric: documents > numbers > others, refused = penalty
+  const cv = chipState.certv;
+  if (cv === 'Documents given') s += 18;
+  else if (cv === 'Numbers given') s += 14;
+  else if (cv === 'Promised by email') s += 6;
+  else if (cv === 'Conditional on PO') s += 6;
+  else if (cv === 'Refused') s -= 10;
+
+  // Cert chips (across all 3 tiers) — +2 each, capped at +14
+  s += Math.min(chipState.certs.size * 2, 14);
+
+  // Document chips (5 total) — +3 each, max +15
+  s += Math.min(chipState.docs.size * 3, 15);
+
+  // Years exporting — +0.5/yr, capped at +6
+  const yrs = parseInt(document.getElementById('f-years').value);
+  if (!isNaN(yrs)) s += Math.min(yrs / 2, 6);
+
+  // Red flags — hard / soft split
+  let hardFlagCount = 0;
+  chipState.flags.forEach(f => {
+    if (HARD_FLAGS.has(f)) { s -= 10; hardFlagCount++; }
+    else if (SOFT_FLAGS.has(f)) { s -= 5; }
+  });
+
+  s = Math.max(0, Math.min(100, Math.round(s)));
+  return s;
+}
+
+function autoTier(score, flags) {
+  // Hard reject conditions
+  let hardCount = 0;
+  flags.forEach(f => { if (HARD_FLAGS.has(f)) hardCount++; });
+  if (hardCount >= 2) return 'X';
+  if (chipState.certv === 'Refused') return 'X';
+
+  // Score-based tiering — A is 80+, selective
+  if (score >= 80) return 'A';
+  if (score >= 50) return 'B';
+  if (score >= 25) return 'C';
+  return 'X';
+}
+
+function tierLabel(t) {
+  return t === 'A' ? 'Tier A · Hot'
+    : t === 'B' ? 'Tier B · Warm'
+    : t === 'C' ? 'Tier C · Backup'
+    : t === 'X' ? 'Reject' : '—';
+}
+
+function updateScore() {
+  const score = calcScore();
+  const tier = autoTier(score, chipState.flags);
+  document.getElementById('score-val').textContent = score;
+  document.getElementById('score-fill').style.width = score + '%';
+  const fill = document.getElementById('score-fill');
+  if (score >= 80) fill.style.background = 'var(--green)';
+  else if (score >= 50) fill.style.background = 'var(--amber)';
+  else fill.style.background = 'var(--red)';
+  const pill = document.getElementById('tier-pill');
+  pill.textContent = tierLabel(tier);
+  pill.className = 'tier-pill mono tier-' + tier;
+}
+
+['f-years','f-moq','f-lead','f-price1'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateScore);
+});
+
+// Wire dirty-tracking to ALL form inputs (text fields, textarea, file uploads)
+document.querySelectorAll('#panel-capture input[type="text"], #panel-capture input[type="email"], #panel-capture input[type="tel"], #panel-capture textarea, #panel-capture input[type="checkbox"]').forEach(el => {
+  el.addEventListener('input', markDirty);
+  el.addEventListener('change', markDirty);
+});
+
+// ============= FORM I/O =============
+function readForm() {
+  const score = calcScore();
+  const autoT = autoTier(score, chipState.flags);
+  let manual = chipState.manualtier;
+  let finalT = autoT;
+  if (manual === 'Tier A') finalT = 'A';
+  else if (manual === 'Tier B') finalT = 'B';
+  else if (manual === 'Tier C') finalT = 'C';
+  else if (manual === 'Reject') finalT = 'X';
+
+  return {
+    id: editingId || ('s_' + Date.now() + '_' + Math.random().toString(36).slice(2,7)),
+    target: chipState.target || 'other',
+    booth: document.getElementById('f-booth').value.trim(),
+    visit_date: document.getElementById('f-date').value.trim(),
+    company: document.getElementById('f-company').value.trim(),
+    type: chipState.type || '',
+    caps: [...chipState.caps],
+    moq: document.getElementById('f-moq').value.trim(),
+    submoq: document.getElementById('f-submoq').value.trim(),
+    sample_policy: document.getElementById('f-samplepolicy').value.trim(),
+    lead: document.getElementById('f-lead').value.trim(),
+    price_moq: document.getElementById('f-price1').value.trim(),
+    years: document.getElementById('f-years').value.trim(),
+    certs: [...chipState.certs],
+    cert_verify: chipState.certv || '',
+    flags: [...chipState.flags],
+    docs: [...chipState.docs],
+    rep: document.getElementById('f-rep').value.trim(),
+    wechat: document.getElementById('f-wechat').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    photos: [...currentPhotos],
+    samples: document.getElementById('f-samples').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    footcare_flag: document.getElementById('f-footcare-flag').checked,
+    followup: chipState.follow || '',
+    score: score,
+    auto_tier: autoT,
+    tier: finalT,
+    created: editingId ? (suppliers.find(s => s.id === editingId)?.created || new Date().toISOString()) : new Date().toISOString(),
+    updated: new Date().toISOString()
+  };
+}
+
+function clearForm() {
+  editingId = null;
+  ['f-booth','f-date','f-company','f-moq','f-submoq','f-samplepolicy','f-lead','f-price1','f-years','f-rep','f-wechat','f-email','f-phone','f-samples','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  Object.keys(chipState).forEach(k => {
+    if (chipState[k] instanceof Set) chipState[k].clear();
+    else chipState[k] = null;
+  });
+  document.querySelectorAll('.chip, .preset-chip').forEach(c => c.classList.remove('on'));
+  document.getElementById('cat-prompt-box').innerHTML = '';
+  document.getElementById('footcare-flag-box').style.display = 'none';
+  document.getElementById('f-footcare-flag').checked = false;
+  currentPhotos = [];
+  renderPhotos();
+  updateScore();
+  markClean();
+  document.getElementById('btn-save').textContent = 'Save supplier';
+  document.getElementById('btn-delete').style.display = 'none';
+}
+
+function loadInto(id) {
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+  clearForm();
+  editingId = id;
+  document.getElementById('f-booth').value = s.booth || '';
+  document.getElementById('f-date').value = s.visit_date || '';
+  document.getElementById('f-company').value = s.company || '';
+  document.getElementById('f-moq').value = s.moq || '';
+  document.getElementById('f-submoq').value = s.submoq || '';
+  document.getElementById('f-samplepolicy').value = s.sample_policy || '';
+  document.getElementById('f-lead').value = s.lead || '';
+  document.getElementById('f-price1').value = s.price_moq || '';
+  document.getElementById('f-years').value = s.years || '';
+  document.getElementById('f-rep').value = s.rep || '';
+  document.getElementById('f-wechat').value = s.wechat || '';
+  document.getElementById('f-email').value = s.email || '';
+  document.getElementById('f-phone').value = s.phone || '';
+  document.getElementById('f-samples').value = s.samples || '';
+  document.getElementById('f-notes').value = s.notes || '';
+  document.getElementById('f-footcare-flag').checked = !!s.footcare_flag;
+
+  // Load photos (handle both new format [{id,tag,dataUrl}] and old text-only format)
+  if (Array.isArray(s.photos)) {
+    currentPhotos = s.photos.map(p => ({ ...p }));
+  } else {
+    currentPhotos = [];
+  }
+  renderPhotos();
+
+  // target
+  if (s.target) {
+    chipState.target = s.target;
+    document.querySelectorAll('#target-chips .preset-chip').forEach(c => {
+      if (c.dataset.key === s.target) c.classList.add('on');
+    });
+    renderCatPrompt(s.target);
+  }
+
+  function applySingle(key, val) {
+    if (!val) return;
+    chipState[key] = val;
+    document.querySelectorAll(`[data-chip="${key}"] .chip`).forEach(c => {
+      if (c.textContent.trim() === val) c.classList.add('on');
+    });
+  }
+  function applyMulti(key, arr) {
+    if (!arr) return;
+    arr.forEach(v => {
+      chipState[key].add(v);
+      document.querySelectorAll(`[data-chip="${key}"] .chip`).forEach(c => {
+        if (c.textContent.trim() === v) c.classList.add('on');
+      });
+    });
+  }
+
+  applySingle('type', s.type);
+  applyMulti('caps', s.caps);
+  applyMulti('certs', s.certs);
+  applySingle('certv', s.cert_verify);
+  applyMulti('flags', s.flags);
+  applyMulti('docs', s.docs);
+  applySingle('follow', s.followup);
+
+  updateScore();
+  document.getElementById('btn-save').textContent = 'Update supplier';
+  document.getElementById('btn-delete').style.display = 'block';
+  markClean();
+  switchTab('capture');
+}
+
+document.getElementById('btn-save').addEventListener('click', () => {
+  if (saving) return;  // hard guard against double-tap
+  if (!formDirty) return;  // nothing to save
+  const r = readForm();
+  if (!r.company) { alert('Company name is required'); return; }
+  if (!r.type) { alert('Company type is required (Factory / Trader / Factory + Trader / Unclear)'); return; }
+
+  saving = true;
+  updateSaveButton();
+
+  try {
+    const idx = suppliers.findIndex(s => s.id === r.id);
+    if (idx >= 0) suppliers[idx] = r;
+    else suppliers.unshift(r);
+    save();
+    flashSaveSuccess();
+    showToast(idx >= 0 ? 'UPDATED' : 'SAVED');
+    saving = false;
+    setTimeout(() => {
+      clearForm();
+      renderAll();
+    }, 800);  // give user time to see the green ✓ SAVED before clearing
+  } catch (e) {
+    saving = false;
+    updateSaveButton();
+  }
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (formDirty) {
+    if (!confirm('Clear current form? Unsaved changes will be lost.')) return;
+  }
+  clearForm();
+});
+
+document.getElementById('btn-delete').addEventListener('click', async () => {
+  if (!editingId) return;
+  const s = suppliers.find(x => x.id === editingId);
+  if (!s) return;
+  const ok = await customConfirm({
+    title: 'Delete supplier',
+    message: `Delete <b>"${escape(s.company)}"</b>?<br><br>This cannot be undone.`,
+  });
+  if (ok) {
+    deleteSupplier(editingId);
+    clearForm();
+    switchTab('list');
+  }
+});
+
+// ============= LIST =============
+function renderList() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const cards = document.getElementById('cards');
+  let filtered = suppliers.filter(s => {
+    if (listFilter !== 'all' && s.tier !== listFilter) return false;
+    if (q) {
+      const blob = (s.company + ' ' + s.booth + ' ' + (s.target || '') + ' ' + s.notes).toLowerCase();
+      if (!blob.includes(q)) return false;
+    }
+    return true;
+  });
+  const tierOrder = { A: 0, B: 1, C: 2, X: 3 };
+  filtered.sort((a,b) => (tierOrder[a.tier] - tierOrder[b.tier]) || (b.score - a.score));
+
+  if (filtered.length === 0) {
+    cards.innerHTML = '<div class="empty">No suppliers match</div>';
+    return;
+  }
+  cards.innerHTML = filtered.map(s => {
+    const target = TARGETS.find(t => t.key === s.target);
+    const tlabel = target ? target.label : 'Other';
+    const photoCount = Array.isArray(s.photos) ? s.photos.length : 0;
+    const photoBadge = photoCount > 0 ? `<span class="card-target mono" style="background:var(--accent)">📷 ${photoCount}</span>` : '';
+    const fcBadge = s.footcare_flag ? `<span class="card-target mono" style="background:var(--amber)">FOOT</span>` : '';
+    return `
+    <div class="card" data-id="${s.id}">
+      <div class="card-head">
+        <div class="card-main" data-id="${s.id}">
+          <div class="card-name">${escape(s.company)}<span class="card-target mono">${escape(tlabel)}</span>${fcBadge}${photoBadge}</div>
+          <div class="card-meta">${escape(s.booth || '—')}${s.visit_date ? ' · ' + escape(s.visit_date) : ''}</div>
+        </div>
+        <div class="card-actions">
+          <div class="card-tier t-${s.tier} mono">${tierLabel(s.tier)}</div>
+          <button class="card-del" data-id="${s.id}" data-name="${escape(s.company)}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></button>
+        </div>
+      </div>
+      <div class="card-body">
+        <span>${escape(s.notes ? s.notes.slice(0, 60) + (s.notes.length > 60 ? '…' : '') : '—')}</span>
+        <span class="card-score mono">${s.score}/100</span>
+      </div>
+    </div>
+  `;
+  }).join('');
+
+  cards.querySelectorAll('.card-main').forEach(el => {
+    el.addEventListener('click', () => loadInto(el.dataset.id));
+  });
+  cards.querySelectorAll('.card-del').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const name = btn.dataset.name;
+      const ok = await customConfirm({
+        title: 'Delete supplier',
+        message: `Delete <b>"${escape(name)}"</b>?<br><br>This cannot be undone.`,
+      });
+      if (ok) deleteSupplier(id);
+    });
+  });
+}
+
+function deleteSupplier(id) {
+  suppliers = suppliers.filter(s => s.id !== id);
+  save();
+  renderAll();
+  showToast('DELETED');
+}
+
+document.getElementById('search').addEventListener('input', renderList);
+document.querySelectorAll('.filter-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('on'));
+    p.classList.add('on');
+    listFilter = p.dataset.filter;
+    renderList();
+  });
+});
+
+// ============= DASHBOARD =============
+function renderDash() {
+  document.getElementById('d-total').textContent = suppliers.length;
+  const today = new Date().toDateString();
+  document.getElementById('d-today').textContent = suppliers.filter(s => new Date(s.created).toDateString() === today).length;
+  document.getElementById('d-followup').textContent = suppliers.filter(s => ['A','B'].includes(s.tier) && s.followup !== 'No follow-up').length;
+  document.getElementById('d-flagged').textContent = suppliers.filter(s => s.flags && s.flags.length > 0).length;
+
+  const counts = { A: 0, B: 0, C: 0, X: 0 };
+  suppliers.forEach(s => { if (counts[s.tier] !== undefined) counts[s.tier]++; });
+  const total = suppliers.length;
+  const bar = document.getElementById('dash-bar');
+  if (total === 0) {
+    bar.innerHTML = '<div class="dash-bar-seg seg-empty">No data yet</div>';
+  } else {
+    bar.innerHTML = ['A','B','C','X'].filter(t => counts[t] > 0).map(t => `
+      <div class="dash-bar-seg seg-${t}" style="flex: ${counts[t]}">${t}·${counts[t]}</div>
+    `).join('');
+  }
+
+  // coverage by target
+  const cov = document.getElementById('coverage-list');
+  cov.innerHTML = TARGETS.filter(t => t.key !== 'other').map(t => {
+    const count = suppliers.filter(s => s.target === t.key).length;
+    const aCount = suppliers.filter(s => s.target === t.key && s.tier === 'A').length;
+    const dot = count === 0 ? '○' : (aCount > 0 ? '●' : '◐');
+    const col = count === 0 ? 'var(--muted)' : (aCount > 0 ? 'var(--green)' : 'var(--amber)');
+    return `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--soft); font-family: 'IBM Plex Mono', monospace; font-size: 12px;">
+      <span><span style="color:${col}; margin-right:6px; font-size:14px;">${dot}</span>${escape(t.label)}${t.priority ? ' ★' : ''}</span>
+      <span style="color:var(--muted)">${count} logged${aCount ? ` · ${aCount}A` : ''}</span>
+    </div>`;
+  }).join('');
+
+  // storage meter
+  renderStorageMeter();
+}
+
+function renderStorageMeter() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY) || '';
+    const bytes = new Blob([raw]).size;
+    // localStorage limit varies but ~5MB is a safe assumption for mobile browsers
+    const limit = 5 * 1024 * 1024;
+    const pct = Math.min(100, Math.round((bytes / limit) * 100));
+    const kb = Math.round(bytes / 1024);
+    const mb = (bytes / (1024 * 1024)).toFixed(2);
+    const photoCount = suppliers.reduce((sum, s) => sum + (Array.isArray(s.photos) ? s.photos.length : 0), 0);
+    document.getElementById('storage-label').textContent =
+      bytes > 1024 * 1024 ? `${mb} MB · ${photoCount} photos` : `${kb} KB · ${photoCount} photos`;
+    document.getElementById('storage-pct').textContent = pct + '%';
+    const fill = document.getElementById('storage-fill');
+    fill.style.width = pct + '%';
+    fill.classList.remove('warn', 'crit');
+    if (pct >= 80) fill.classList.add('crit');
+    else if (pct >= 60) fill.classList.add('warn');
+  } catch (e) { /* silent */ }
+}
+
+// ============= EXPORT / IMPORT =============
+function exportCSV() {
+  if (suppliers.length === 0) { alert('No suppliers to export'); return; }
+  const cols = ['target','footcare_flag','booth','visit_date','company','tier','auto_tier','score','type','moq','submoq','sample_policy','lead','price_moq','years','cert_verify','certs','caps','flags','docs','rep','wechat','email','phone','photo_count','photo_tags','samples','followup','notes','created','updated'];
+  const head = cols.join(',');
+  const rows = suppliers.map(s => {
+    const flat = { ...s };
+    // Replace photos array with count + tags for CSV (binary doesn't fit in CSV)
+    if (Array.isArray(s.photos)) {
+      flat.photo_count = s.photos.length;
+      flat.photo_tags = s.photos.map(p => p.tag).join('; ');
+    } else {
+      flat.photo_count = 0;
+      flat.photo_tags = s.photos || '';
+    }
+    return cols.map(c => csvCell(flat[c])).join(',');
+  });
+  const csv = '\ufeff' + head + '\n' + rows.join('\n');
+  download('dfo_canton_phase3_' + dateStr() + '.csv', csv, 'text/csv');
+  showToast('CSV DOWNLOADED');
+}
+function csvCell(v) {
+  if (v === undefined || v === null) return '';
+  if (Array.isArray(v)) v = v.join('; ');
+  v = String(v);
+  if (v.includes(',') || v.includes('"') || v.includes('\n')) {
+    v = '"' + v.replace(/"/g, '""') + '"';
+  }
+  return v;
+}
+function exportJSON() {
+  if (suppliers.length === 0) { alert('No suppliers to export'); return; }
+  const j = JSON.stringify({ exported: new Date().toISOString(), suppliers }, null, 2);
+  download('dfo_canton_endofday_' + dateStr() + '.json', j, 'application/json');
+  showToast('EXPORT SAVED — SEND TO TEAM');
+}
+function dateStr() {
+  const d = new Date();
+  return d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2) + '_' + ('0'+d.getHours()).slice(-2) + ('0'+d.getMinutes()).slice(-2);
+}
+function download(name, text, type) {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+document.getElementById('import-json').addEventListener('change', (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const j = JSON.parse(r.result);
+      const arr = Array.isArray(j) ? j : (j.suppliers || []);
+      if (!arr.length) throw new Error('No suppliers in file');
+      if (!confirm(`Import ${arr.length} suppliers? Will MERGE by id.`)) return;
+      arr.forEach(s => {
+        const idx = suppliers.findIndex(x => x.id === s.id);
+        if (idx >= 0) suppliers[idx] = s;
+        else suppliers.push(s);
+      });
+      save();
+      renderAll();
+      showToast('IMPORTED');
+    } catch (err) { alert('Import failed: ' + err.message); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+});
+
+function confirmClear() {
+  if (suppliers.length === 0) return;
+  const txt = prompt(`Delete all ${suppliers.length} suppliers. Type CLEAR to confirm.`);
+  if (txt === 'CLEAR') {
+    suppliers = [];
+    save();
+    renderAll();
+    showToast('CLEARED');
+  }
+}
+
+function findDuplicates() {
+  if (suppliers.length === 0) { alert('No suppliers logged yet.'); return; }
+  // Group by normalized company + booth key
+  const groups = {};
+  suppliers.forEach(s => {
+    const key = (s.company || '').trim().toLowerCase() + '||' + (s.booth || '').trim().toLowerCase();
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(s);
+  });
+  // Find groups with 2+ entries
+  const dupGroups = Object.values(groups).filter(g => g.length > 1);
+  if (dupGroups.length === 0) {
+    alert('No duplicates found 🎉');
+    return;
+  }
+  // Build a summary
+  let totalToRemove = 0;
+  let summary = '';
+  dupGroups.forEach((g, i) => {
+    const first = g[0];
+    const company = first.company || '(no name)';
+    const booth = first.booth || '(no booth)';
+    summary += `${i+1}. "${company}" @ ${booth} — ${g.length} copies\n`;
+    totalToRemove += g.length - 1;
+  });
+  const msg = `Found ${dupGroups.length} duplicate group(s), ${totalToRemove} extra entries to remove.\n\n${summary}\nKeep the most recently updated of each group, delete the rest?`;
+  if (!confirm(msg)) return;
+
+  // For each group, keep the one with newest 'updated' timestamp
+  const idsToKeep = new Set();
+  Object.values(groups).forEach(g => {
+    if (g.length === 1) {
+      idsToKeep.add(g[0].id);
+    } else {
+      g.sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+      idsToKeep.add(g[0].id);
+    }
+  });
+  const before = suppliers.length;
+  suppliers = suppliers.filter(s => idsToKeep.has(s.id));
+  save();
+  renderAll();
+  alert(`Removed ${before - suppliers.length} duplicate entries. ${suppliers.length} suppliers remaining.`);
+}
+
+// ============= UTIL =============
+function escape(s) {
+  if (s === undefined || s === null) return '';
+  return String(s).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' })[c]);
+}
+
+// Custom confirm modal (works in iframes / preview environments where browser confirm() may be blocked)
+function customConfirm(opts) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('confirm-modal');
+    const title = document.getElementById('confirm-title');
+    const msg = document.getElementById('confirm-msg');
+    const okBtn = document.getElementById('confirm-ok');
+    const cancelBtn = document.getElementById('confirm-cancel');
+
+    title.textContent = opts.title || 'Confirm';
+    msg.innerHTML = opts.message || '';
+    okBtn.textContent = opts.okText || 'Delete';
+    cancelBtn.textContent = opts.cancelText || 'Cancel';
+
+    modal.classList.add('show');
+
+    function cleanup(result) {
+      modal.classList.remove('show');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      modal.removeEventListener('click', onBackdrop);
+      resolve(result);
+    }
+    function onOk() { cleanup(true); }
+    function onCancel() { cleanup(false); }
+    function onBackdrop(e) { if (e.target === modal) cleanup(false); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    modal.addEventListener('click', onBackdrop);
+  });
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+function renderHeader() {
+  document.getElementById('stat-total').textContent = suppliers.length;
+  document.getElementById('stat-a').textContent = suppliers.filter(s => s.tier === 'A').length;
+}
+
+function renderAll() {
+  renderHeader();
+  renderTargets();
+  renderList();
+  renderDash();
+  updateScore();
+}
+
+load();
+updateScore();
+markClean();
+</script>
+
+</body>
+</html>
